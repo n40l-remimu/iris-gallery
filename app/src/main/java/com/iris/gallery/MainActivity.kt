@@ -7,6 +7,7 @@ import android.app.Activity
 import android.app.RecoverableSecurityException
 import android.content.ContextWrapper
 import android.content.pm.ActivityInfo
+import android.content.Context
 import android.content.Intent
 import android.content.ClipData
 import android.content.ContentUris
@@ -133,6 +134,7 @@ import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.LocationOn
@@ -3893,6 +3895,16 @@ private fun PhotoGrid(
     }
 }
 
+private fun castToCastLab(context: Context, current: MediaImage) {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = if (current.isVideo) "video/*" else "image/*"
+        putExtra(Intent.EXTRA_STREAM, getShareUri(context, current))
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        setPackage("app.fedilab.castlab")
+    }
+    context.startActivity(intent)
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PhotoViewer(
@@ -4590,6 +4602,13 @@ private fun PhotoViewer(
                         confirmDelete = true
                     }
                 } else {
+                    ViewerIconButton(
+                        icon = Icons.Outlined.Cast,
+                        label = "CastLab",
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        castToCastLab(context, current)
+                      }     
                     ViewerIconButton(
                         icon = Icons.Outlined.Share,
                         label = stringResource(R.string.action_share),
